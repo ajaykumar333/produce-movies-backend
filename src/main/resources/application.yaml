@@ -1,22 +1,22 @@
 spring:
   application:
     name: produce-movies
+
   datasource:
-    url: ${DATASOURCE_URL}
-    username:  ${DATASOURCE_USER}
-    password:  ${DATASOURCE_PASSWORD}
+    url: ${SPRING_DATASOURCE_URL:${DATASOURCE_URL}}
+    username: ${SPRING_DATASOURCE_USERNAME:${DATASOURCE_USER}}
+    password: ${SPRING_DATASOURCE_PASSWORD:${DATASOURCE_PASSWORD}}
     driver-class-name: org.postgresql.Driver
+
   jpa:
     hibernate:
       ddl-auto: update
     properties:
       hibernate:
         format_sql: true
+
 front-end:
-  url: ${FRONT_END_URL}}
-omdb:
-  api-key: 4c2221ce
-  base-url: https://www.omdbapi.com/
+  url: ${FRONT_END_URL}
 
 app:
   jwt:
