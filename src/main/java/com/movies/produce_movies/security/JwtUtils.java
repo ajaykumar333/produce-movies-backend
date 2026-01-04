@@ -89,7 +89,6 @@ public class JwtUtils {
     }
 
     public String generateJwtToken(Authentication authentication) {
-
         UserPrincipal userPrincipal =
             (UserPrincipal) authentication.getPrincipal();
 
@@ -117,13 +116,46 @@ public class JwtUtils {
 
     public boolean validateJwtToken(String authToken) {
         try {
-            Jwts.parserBuilder()
+            Claims claims = Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
                 .build()
-                .parseClaimsJws(authToken);
-            return true;
-        } catch (JwtException | IllegalArgumentException e) {
+                .parseClaimsJws(authToken)
+                .getBody();
+            
+            // Check if token is expired
+            return !claims.getExpiration().before(new Date());
+        } catch (ExpiredJwtException e) {
+            System.err.println("JWT token is expired: " + e.getMessage());
             return false;
+        } catch (JwtException | IllegalArgumentException e) {
+            System.err.println("Invalid JWT token: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean isTokenExpired(String token) {
+        try {
+            Claims claims = Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+            return claims.getExpiration().before(new Date());
+        } catch (Exception e) {
+            return true;
+        }
+    }
+
+    public Date getExpirationDateFromToken(String token) {
+        try {
+            Claims claims = Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+            return claims.getExpiration();
+        } catch (Exception e) {
+            return null;
         }
     }
 }

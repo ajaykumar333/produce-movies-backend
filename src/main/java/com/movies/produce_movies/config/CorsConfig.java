@@ -12,38 +12,40 @@ import java.util.List;
 @Configuration
 public class CorsConfig {
 
-	@Value("${front-end.url}")
-	private String frontEndUrl;
-	
+    @Value("${front-end.url}")
+    private String frontEndUrl;
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
 
         CorsConfiguration config = new CorsConfiguration();
 
-        // ✅ Explicit origins (required when allowCredentials = true)
+        // ✅ Allowed frontend origins
         config.setAllowedOrigins(List.of(
-                frontEndUrl
+                frontEndUrl, 
+                "https://produce-movies-frontend.onrender.com",
+                "https://bright-axolotl-15ed9f.netlify.app/"
         ));
 
         // ✅ HTTP methods
         config.setAllowedMethods(List.of(
-            "GET", "POST", "PUT", "DELETE", "OPTIONS"
+                "GET", "POST", "PUT", "DELETE", "OPTIONS"
         ));
 
-        // ✅ Headers (Authorization is critical for JWT)
+        // ✅ Required headers for JWT
         config.setAllowedHeaders(List.of(
-            "Authorization",
-            "Content-Type",
-            "Accept"
+                "Authorization",
+                "Content-Type",
+                "Accept"
         ));
 
-        // ✅ Required for cookies / Authorization header
+        // ✅ Allow cookies / Authorization header
         config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source =
-            new UrlBasedCorsConfigurationSource();
+                new UrlBasedCorsConfigurationSource();
 
-        // ✅ Apply to ALL endpoints
+        // ✅ Apply to all endpoints
         source.registerCorsConfiguration("/**", config);
 
         return source;

@@ -6,7 +6,9 @@ import com.movies.produce_movies.dto.SignupRequest;
 import com.movies.produce_movies.entity.User;
 import com.movies.produce_movies.repository.UserRepository;
 import com.movies.produce_movies.security.JwtUtils;
+import com.movies.produce_movies.security.TokenBlacklistService;
 import com.movies.produce_movies.security.UserPrincipal;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +17,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -33,6 +36,9 @@ public class AuthController {
 
 	@Autowired
 	JwtUtils jwtUtils;
+
+	@Autowired
+	TokenBlacklistService tokenBlacklistService;
 
 	@PostMapping("/signin")
 	public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
@@ -65,6 +71,30 @@ public class AuthController {
 		userRepository.save(user);
 
 		return ResponseEntity.ok("User registered successfully!");
+	}
+
+	@PostMapping("/logout")
+	public ResponseEntity<?> logoutUser(HttpServletRequest request) {
+		String authHeader = request.getHeader("Authorization");
+		if (StringUtils.hasText(authHeader) && authHeader.startsWith("Bearer ")) {
+			String token = authHeader.substring(7);
+			tokenBlacklistService.blacklistToken(token);
+		}
+		SecurityContextHolder.clearContext();
+		return ResponseEntity.ok("User logged out successfully!");
+	}
+
+	@PostMapping("/validate-token")
+	public ResponseEntity<?> validateToken(HttpServletRequest request) {
+		String authHeader = request.getHeader("Authorization");
+		if (authHeader != null && authHeader.startsWith("Bearer ")) {
+			String token = authHeader.substring(7);
+			if (!tokenBlacklistService.isTokenBlacklisted(token) && 
+				jwtUtils.validateJwtToken(token) && !jwtUtils.isTokenExpired(token)) {
+				return ResponseEntity.ok("Token is valid");
+			}
+		}
+		return ResponseEntity.status(401).body("Token is invalid or expired");
 	}
 	
 }
