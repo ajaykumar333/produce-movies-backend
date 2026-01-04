@@ -42,7 +42,7 @@ public class MovieController {
     @GetMapping("/paged-movies")
     public ResponseEntity<Page<MovieSummaryDto>> getAllMovies(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "22") int size,
+            @RequestParam(defaultValue = "100") int size,
             @RequestParam(defaultValue = "title") String sortBy,
             @RequestParam(defaultValue = "asc") String direction,
             @RequestParam(required = false) String search) {
