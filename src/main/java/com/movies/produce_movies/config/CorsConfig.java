@@ -23,7 +23,7 @@ public class CorsConfig {
         // ✅ Allowed frontend origins
         config.setAllowedOrigins(List.of(
                 frontEndUrl, 
-                "https://produce-movies-frontend.onrender.com",
+                "https://produce-movies-backend-project-latest.onrender.com/",
                 "https://bright-axolotl-15ed9f.netlify.app/"
         ));
 
